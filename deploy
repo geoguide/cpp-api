@@ -1,5 +1,5 @@
 ssh ubuntu@52.25.136.246 <<EOF
- cd /home/ubuntu/cbb-api
+ cd /home/ubuntu/cpp-api
  git pull origin master
  npm install --production
  npm run build
