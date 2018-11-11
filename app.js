@@ -3,6 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser'); //For parsing json put requests https://github.com/expressjs/body-parser
+var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -11,6 +12,8 @@ var app = express();
 try {
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
+
+app.use(cors());
 
 // Add headers
 app.use(function (req, res, next) {
@@ -23,10 +26,10 @@ app.use(function (req, res, next) {
 	res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
 
 	// Request headers to allow
-	res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, APIVersion, modio");
+	res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, APIVersion,");
 
 	// Set to true if need the website to include cookies in the requests sent to the API (for future IE 7 integration)
-	res.setHeader('Access-Control-Allow-Credentials', true);
+	res.setHeader('Access-Control-Allow-Credentials', false);
 
 	res.setHeader('Cache-Control', 'no-store, no-cache');
 
@@ -42,6 +45,10 @@ app.set('json spaces',2);
 /*******************
        Parsers
 *******************/
+app.use(function(req, res, next) {
+  console.info('i received something... and...');
+  next();
+});
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
