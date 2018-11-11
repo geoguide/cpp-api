@@ -10,6 +10,14 @@ router.get('/players', function(req, res, next) {
 
 });
 
+router.get('/tasks/:id', function(req, res, next) {
+  const id = req.params.id;
+  connection.promise().query(`SELECT * from tasks WHERE id = ${id}`).then(([results, fields]) => {
+    if(results.length === 0) res.status(404).send('bad task!');
+    res.status(200).send(results[0]);
+  });
+});
+
 router.get('/tasks', function(req, res, next) {
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     res.status(200).send(results);
