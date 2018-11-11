@@ -76,7 +76,7 @@ router.post('/players/:ben_id/change-name', function(req, res, next) {
   let bentTasks = [];
 
   if(!benId || ! newName) return res.status(400).send('no ben');
-  connection.promise().query('UPDATE players SET name = "'+newName+'" WHERE id = '+benId).then(([results, fields]) => {
+  connection.promise().query('UPDATE players SET name = "'+newName+'", changed = 1 WHERE id = '+benId).then(([results, fields]) => {
     res.status(200).send('did it');
   }).catch(e => {
     console.error(e);
