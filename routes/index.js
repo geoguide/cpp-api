@@ -14,7 +14,6 @@ router.get('/tasks', function(req, res, next) {
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     res.status(200).send(results);
   });
-
 });
 
 router.get('/players/:ben_id/remaining-tasks', function(req, res, next) {
@@ -25,7 +24,7 @@ router.get('/players/:ben_id/remaining-tasks', function(req, res, next) {
   if(!benId) return res.status(400).send('no ben');
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     tasks = results;
-    return connection.promise().query('SELECT * from ben_tasks');
+    return connection.promise().query('SELECT * from ben_tasks WHERE ben_id = '+benId);
   }).then(([results,fields]) => {
     benTasks = results;
     const completedTaskIds = benTasks.map(bt => bt.task_id);
@@ -47,7 +46,7 @@ router.get('/players/:ben_id/completed-tasks', function(req, res, next) {
   if(!benId) return res.status(400).send('no ben');
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     tasks = results;
-    return connection.promise().query('SELECT * from ben_tasks');
+    return connection.promise().query('SELECT * from ben_tasks WHERE ben_id = '+benId);
   }).then(([results,fields]) => {
     benTasks = results;
     const completedTaskIds = benTasks.map(bt => bt.task_id);
@@ -76,9 +75,46 @@ router.post('/players/:ben_id/change-name', function(req, res, next) {
   });
 });
 
+router.get('/players/:id/dashboard', function(req, res, next) {
+  let full = {};
+  connection.promise().query('SELECT * from players WHERE id='+req.params.id).then(([results, fields]) => {
+    if(results.length === 0) {
+      res.status(404).send('did not find ben');
+      return;
+    }
+    full = { ...results[0]};
+    return connection.promise().query(`SELECT * from ben_tasks WHERE ben_id = ${full.id}`);
+  }).then(([results, fields]) => {
+    full.tasks = results;
+    res.status(200).send(full);
+  });
+});
+
 router.get('/players/:id', function(req, res, next) {
   connection.promise().query('SELECT * from players WHERE id='+req.params.id).then(([results, fields]) => {
-    res.status(200).send(results);
+    if(results.length === 0) {
+      res.status(404).send('did not find ben');
+      return;
+    }
+    res.status(200).send(results[0]);
+  });
+});
+
+router.get('/players/find/:ben', function(req, res, next) {
+  const ben = `BEN-${req.params.ben}`;
+  console.log('search for', ben);
+  connection.promise().query('SELECT * from players WHERE name="'+ben+'"').then(([results, fields]) => {
+    if(results.length === 0) {
+      res.status(404).send('did not find ben');
+      return;
+    }
+    res.status(200).send(results[0]);
+  });
+});
+
+router.delete('/players/:id', function(req, res, next) {
+  connection.promise().query('DELETE from players WHERE id='+req.params.id).then(([results, fields]) => {
+    res.status(200).send('deleted');
   });
 });
 
