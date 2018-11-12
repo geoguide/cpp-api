@@ -1,6 +1,7 @@
 ssh ubuntu@52.25.136.246 <<EOF
  cd /home/ubuntu/cpp-api
- git pull origin master
+ git fetch --all
+ git reset --hard origin/master
  npm install --production
  sleep 10s
  pm2 kill
