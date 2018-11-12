@@ -39,8 +39,8 @@ app.use(function (req, res, next) {
 	next();
 });
 
-app.set('x-powered-by',false);
-app.set('json spaces',2);
+app.set('x-powered-by', false);
+app.set('json spaces', 2);
 
 /*******************
        Parsers

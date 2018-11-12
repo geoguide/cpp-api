@@ -4,6 +4,6 @@ ssh ubuntu@52.25.136.246 <<EOF
  npm install --production
  sleep 10s
  pm2 kill
- pm2 start app.js
+ pm2 start bin/www
  exit
 EOF
