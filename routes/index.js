@@ -130,7 +130,15 @@ router.post('/players', function(req, res, next) {
   if(!req.body.name) {
     res.status(400).send('you didn\'t send a name!')
   }
-  return connection.promise().query('INSERT INTO players (name, actual_name) VALUES  ("'+req.body.name+'", "'+req.body.actual_name+'")').then((result) => {
+  console.log(req.body.name);
+  const nameParts = req.body.name.split('-');
+  let paddedName = nameParts[1];
+  while(paddedName.length < 3) {
+    console.log('pn', paddedName)
+    paddedName = '0'+paddedName;
+  }
+  const fixedName = nameParts[0]+'-'+paddedName;
+  return connection.promise().query('INSERT INTO players (name, actual_name) VALUES  ("'+fixedName+'", "'+req.body.actual_name+'")').then((result) => {
     res.status(200).send(result);
   }).catch(e => {
     console.error(e);
