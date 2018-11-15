@@ -4,7 +4,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/players', function(req, res, next) {
-  connection.promise().query('SELECT * from players').then(([results, fields]) => {
+  connection.promise().query('SELECT * from players SORT BY name ASC').then(([results, fields]) => {
     res.status(200).send(results);
   });
 
