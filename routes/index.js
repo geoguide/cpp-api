@@ -54,7 +54,7 @@ router.get('/players/:ben_id/completed-tasks', function(req, res, next) {
   if(!benId) return res.status(400).send('no ben');
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     tasks = results;
-    return connection.promise().query('SELECT * from ben_tasks WHERE ben_id = '+benId);
+    return connection.promise().query('SELECT b.id, b.ben_id, b.task_id, t.other from ben_tasks b JOIN tasks t WHERE b.ben_id = '+benId);
   }).then(([results,fields]) => {
     benTasks = results;
     const completedTaskIds = benTasks.map(bt => bt.task_id);
@@ -91,7 +91,7 @@ router.get('/players/:id/dashboard', function(req, res, next) {
       return;
     }
     full = { ...results[0]};
-    return connection.promise().query(`SELECT * from ben_tasks WHERE ben_id = ${full.id}`);
+    return connection.promise().query(`SELECT b.id, b.ben_id, b.task_id, t.other from ben_tasks b JOIN tasks t WHERE b.ben_id = ${full.id}`);
   }).then(([results, fields]) => {
     full.tasks = results;
     res.status(200).send(full);
