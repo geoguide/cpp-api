@@ -69,7 +69,6 @@ router.get('/players/:ben_id/completed-tasks', function(req, res, next) {
 });
 
 router.post('/players/:ben_id/change-name', function(req, res, next) {
-  console.log('got to here');
   const benId = req.params.ben_id;
   const newName = req.body.new_id;
   let tasks = [];
@@ -91,10 +90,22 @@ router.get('/players/:id/dashboard', function(req, res, next) {
       return;
     }
     full = { ...results[0]};
-    return connection.promise().query(`SELECT b.id, b.ben_id, b.task_id, t.other from ben_tasks b JOIN tasks t WHERE b.ben_id = ${full.id}`);
+    const sql = `SELECT DISTINCT b.id, b.ben_id, b.task_id, t.other from ben_tasks b JOIN tasks t ON t.id = b.task_id WHERE b.ben_id = ${full.id}`;
+    console.log(sql);
+    return connection.promise().query(sql);
   }).then(([results, fields]) => {
+    console.log(results);
     full.tasks = results;
     res.status(200).send(full);
+  });
+});
+
+router.post('/players/:id/see/:a_id', function(req, res, next) {
+  const benId = req.params.id;
+  const aId = req.params.a_id;
+  const sql = `INSERT INTO ben_achievements (ben_id, achievement_id) VALUES (${benId}, ${aId})`;
+  connection.promise().query(sql).then((result) => {
+    res.status(200).send(result);
   });
 });
 
@@ -105,6 +116,12 @@ router.get('/players/:id', function(req, res, next) {
       return;
     }
     res.status(200).send(results[0]);
+  });
+});
+
+router.get('/:id/achievements', function(req, res, next) {
+  connection.promise().query('SELECT * from ben_achievements WHERE ben_id='+req.params.id).then(([results, fields]) => {
+    res.status(200).send(results);
   });
 });
 
