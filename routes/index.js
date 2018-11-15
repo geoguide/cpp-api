@@ -18,6 +18,24 @@ router.get('/tasks/:id', function(req, res, next) {
   });
 });
 
+router.post('/tasks/:ben_id', function(req, res, next) {
+  const benId = req.params.ben_id;
+  const newTask = req.body.new_task;
+
+  if(!benId || ! newTask) return res.status(400).send('no ben');
+  const sql = `INSERT INTO tasks (task) VALUES ("${newTask}")`;
+
+  connection.promise().query(sql).then(([result, something]) => {
+    const sql2 = `INSERT INTO ben_tasks (ben_id, task_id) VALUES (${benId}, "${result.insertId}")`;
+    return connection.promise().query(sql2);
+  }).then(result => {
+    res.status(200).send('did it');
+  }).catch(e => {
+    console.error(e);
+    res.status(500).send(e);
+  });
+});
+
 router.get('/tasks', function(req, res, next) {
   connection.promise().query('SELECT * from tasks').then(([results, fields]) => {
     res.status(200).send(results);
@@ -39,7 +57,6 @@ router.get('/players/:ben_id/remaining-tasks', function(req, res, next) {
     const remaining = tasks.filter(t => {
       return !completedTaskIds.includes(t.id);
     });
-    console.log('remains', remaining);
     res.status(200).send(remaining);
   }).catch(e => {
     console.error(e);
@@ -61,7 +78,6 @@ router.get('/players/:ben_id/completed-tasks', function(req, res, next) {
     const remaining = tasks.filter(t => {
       return completedTaskIds.includes(t.id);
     });
-    console.log('remains', remaining);
     res.status(200).send(remaining);
   }).catch(e => {
     console.error(e);
@@ -91,10 +107,8 @@ router.get('/players/:id/dashboard', function(req, res, next) {
     }
     full = { ...results[0]};
     const sql = `SELECT DISTINCT b.id, b.ben_id, b.task_id, t.other from ben_tasks b JOIN tasks t ON t.id = b.task_id WHERE b.ben_id = ${full.id}`;
-    console.log(sql);
     return connection.promise().query(sql);
   }).then(([results, fields]) => {
-    console.log(results);
     full.tasks = results;
     res.status(200).send(full);
   });
@@ -127,7 +141,6 @@ router.get('/:id/achievements', function(req, res, next) {
 
 router.get('/players/find/:ben', function(req, res, next) {
   const ben = `BEN-${req.params.ben}`;
-  console.log('search for', ben);
   connection.promise().query('SELECT * from players WHERE name="'+ben+'"').then(([results, fields]) => {
     if(results.length === 0) {
       res.status(404).send('did not find ben');
@@ -147,11 +160,9 @@ router.post('/players', function(req, res, next) {
   if(!req.body.name) {
     res.status(400).send('you didn\'t send a name!')
   }
-  console.log(req.body.name);
   const nameParts = req.body.name.split('-');
   let paddedName = nameParts[1];
   while(paddedName.length < 3) {
-    console.log('pn', paddedName)
     paddedName = '0'+paddedName;
   }
   const fixedName = nameParts[0]+'-'+paddedName;
